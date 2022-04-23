@@ -4,4 +4,5 @@ version=v1.0.0
 versionCode=1
 author=Yubyf
 description=Load custom fonts imported from QuoteLockX for system apps.
+updateJson=https://raw.githubusercontent.com/Yubyf/QuoteLockX-CustomFonts/master/update.json
 minMagisk=19
