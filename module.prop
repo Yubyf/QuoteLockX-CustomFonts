@@ -1,0 +1,7 @@
+id=quotelockx_custom_fonts
+name=QuoteLockX Custom Fonts - Systemless
+version=v1.0.0
+versionCode=1
+author=Yubyf
+description=Load custom fonts imported from QuoteLockX for system apps.
+minMagisk=19
