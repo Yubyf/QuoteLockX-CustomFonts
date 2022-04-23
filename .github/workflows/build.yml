@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    tags:
+    - 'v*.*.*'
+
+  workflow_dispatch:
+
+jobs:
+  publish-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v3
+
+      - name: Set ENV
+        id: vars
+        run: |
+          echo ::set-output name=TAG::${GITHUB_REF#refs/*/}
+          echo ::set-output name=DATE::$(date +'%Y%m%dT%H%M%S')
+
+      - name: Set Version Suffix
+        uses: haya14busa/action-cond@v1
+        id: suffix
+        with:
+          cond: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          if_true: ${{ steps.vars.outputs.TAG }}
+          if_false: ${{ steps.vars.outputs.TAG }}-${{ steps.vars.outputs.DATE }}
+
+      - name: Archive
+        run: zip -r -0 QuoteLockXCustomFonts-Systemless-${{ steps.suffix.outputs.value }}.zip ./ -x "*.git*" "LICENSE" "README.md"
+
+      - name: Upload Artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: Package-Inside-${{ steps.suffix.outputs.value }}
+          path: ./QuoteLockXCustomFonts-Systemless-${{ steps.suffix.outputs.value }}.zip
+          retention-days: 7
+
+      - name: Publish
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          artifacts: ./QuoteLockXCustomFonts-Systemless-${{ steps.suffix.outputs.value }}.zip
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN}}
+          body: Released by [Github Actions](https://github.com/Yubyf/QuoteLockX-CustomFontsPrivate/actions)
