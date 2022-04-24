@@ -10,11 +10,11 @@ LOG_ENABLED=0
 echo_date()
 {
     if [ $LOG_ENABLED -eq 1 ] ; then
-        echo `date +%y/%m/%dT%H:%M:%S`: $*
+        echo "$(date +%y/%m/%dT%H:%M:%S): $*"
     fi
 }
 
-until [ $(getprop sys.boot_completed) -eq 1 ] ; do
+until [ "$(getprop sys.boot_completed)" -eq 1 ] ; do
     sleep 1
 done
 
@@ -41,11 +41,12 @@ done
         echo_date "No fonts to import"
     else
         echo_date "Importing fonts..."
-        mkdir -p $FONT_DEST_DIR
-        for file in `ls $FONT_PENDING_IMPORT_DIR/`
+        mkdir -p "$FONT_DEST_DIR"
+        for file in "$FONT_PENDING_IMPORT_DIR"/*
         do
-            echo_date "Move $FONT_PENDING_IMPORT_DIR/$file to $FONT_DEST_DIR/"
-            mv $FONT_PENDING_IMPORT_DIR/$file $FONT_DEST_DIR/
+            echo_date "Move $file to $FONT_DEST_DIR/"
+            cp "$file" "$FONT_DEST_DIR/"
+            rm "$file"
         done
     fi
     if [ ! -d "$FONT_PENDING_REMOVE_DIR/" ] ; then
@@ -54,14 +55,15 @@ done
         echo_date "No fonts to remove"
     else
         echo_date "Removing fonts..."
-        for file in `ls $FONT_PENDING_REMOVE_DIR/`
+        for file in "$FONT_PENDING_REMOVE_DIR"/*
         do
-            echo_date "Delete $FONT_DEST_DIR/$file"
-            rm $FONT_DEST_DIR/$file
-            rm $FONT_PENDING_REMOVE_DIR/$file
+            file_name=$(basename "$file")
+            echo_date "Delete $FONT_DEST_DIR/$file_name"
+            rm "$FONT_DEST_DIR/$file_name"
+            rm "$file"
         done
     fi
 
-    chmod -R +r $FONT_DEST_DIR/
+    chmod -R +r "$FONT_DEST_DIR"/
     echo_date "Font sync script finished"
 ) >> $FONT_PENDING_DIR/log 2>&1
